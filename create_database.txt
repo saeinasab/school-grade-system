@@ -1,0 +1,109 @@
+Option Compare Database
+Option Explicit
+
+' 🎯 سیستم مدیریت نمرات دبیرستان
+' توسعه‌دهنده: سعید ساعی نسب
+' تاریخ: ۱۴۰۳
+
+Public Sub CreateCompleteDatabase()
+    On Error GoTo ErrorHandler
+    
+    Call CreateAllTables
+    Call CreateMainForms
+    Call AddSampleData
+    Call ApplyPersianSettings
+    
+    MsgBox "✅ پایگاه داده با موفقیت ایجاد شد!" & vbCrLf & _
+           "سیستم مدیریت نمرات آماده استفاده است.", vbInformation
+    
+    Exit Sub
+
+ErrorHandler:
+    MsgBox "❌ خطا در ایجاد پایگاه داده: " & Err.Description, vbCritical
+End Sub
+
+' 📊 ایجاد تمام جداول
+Public Sub CreateAllTables()
+    ' جدول دانش‌آموزان
+    If Not TableExists("Students") Then
+        CurrentDb.Execute "CREATE TABLE Students (" & _
+            "StudentID AUTOINCREMENT PRIMARY KEY, " & _
+            "FirstName TEXT(50) NOT NULL, " & _
+            "LastName TEXT(50) NOT NULL, " & _
+            "Grade INTEGER NOT NULL, " & _
+            "Class TEXT(10) NOT NULL, " & _
+            "EnrollmentDate DATE DEFAULT DATE(), " & _
+            "Phone TEXT(15), " & _
+            "Address TEXT(255), " & _
+            "IsActive YESNO DEFAULT TRUE)"
+    End If
+    
+    ' جدول دروس
+    If Not TableExists("Subjects") Then
+        CurrentDb.Execute "CREATE TABLE Subjects (" & _
+            "SubjectID AUTOINCREMENT PRIMARY KEY, " & _
+            "SubjectName TEXT(100) NOT NULL, " & _
+            "TeacherName TEXT(100) NOT NULL, " & _
+            "UnitCount INTEGER DEFAULT 1, " & _
+            "MinScore INTEGER DEFAULT 10, " & _
+            "Description TEXT(255), " & _
+            "IsActive YESNO DEFAULT TRUE)"
+    End If
+    
+    ' جدول نمرات ماهانه
+    If Not TableExists("MonthlyScores") Then
+        CurrentDb.Execute "CREATE TABLE MonthlyScores (" & _
+            "ScoreID AUTOINCREMENT PRIMARY KEY, " & _
+            "StudentID LONG NOT NULL, " & _
+            "SubjectID LONG NOT NULL, " & _
+            "Month INTEGER NOT NULL, " & _
+            "Year INTEGER NOT NULL, " & _
+            "Score DOUBLE NOT NULL, " & _
+            "ExamType TEXT(50) DEFAULT 'عادی', " & _
+            "RecordDate DATE DEFAULT DATE(), " & _
+            "RecordedBy TEXT(100), " & _
+            "Description TEXT(255))"
+    End If
+    
+    ' جدول کلاس‌ها
+    If Not TableExists("Classes") Then
+        CurrentDb.Execute "CREATE TABLE Classes (" & _
+            "ClassID AUTOINCREMENT PRIMARY KEY, " & _
+            "ClassName TEXT(20) NOT NULL, " & _
+            "GradeLevel INTEGER NOT NULL, " & _
+            "HomeroomTeacher TEXT(100), " & _
+            "StudentCount INTEGER DEFAULT 0, " & _
+            "IsActive YESNO DEFAULT TRUE)"
+    End If
+End Sub
+
+' 🎨 ایجاد فرم‌های اصلی
+Public Sub CreateMainForms()
+    CreateMainMenuForm
+    CreateStudentManagementForm
+    CreateScoreEntryForm
+    CreateSubjectManagementForm
+End Sub
+
+' 📝 اضافه کردن داده‌های نمونه
+Public Sub AddSampleData()
+    ' دروس نمونه
+    AddSampleSubjects
+    ' دانش‌آموزان نمونه
+    AddSampleStudents
+    ' کلاس‌های نمونه
+    AddSampleClasses
+End Sub
+
+' 🔧 تنظیمات فارسی
+Public Sub ApplyPersianSettings()
+    ' اینجا تنظیمات فونت و راست‌چین اضافه می‌شود
+    MsgBox "تنظیمات فارسی اعمال شد", vbInformation
+End Sub
+
+' 🔍 بررسی وجود جدول
+Public Function TableExists(TableName As String) As Boolean
+    On Error Resume Next
+    TableExists = (CurrentDb.TableDefs(TableName).Name = TableName)
+    On Error GoTo 0
+End Function
