@@ -1,0 +1,38 @@
+' =============================================
+' سیستم مدیریت نمرات دبیرستان - نسخه فارسی
+' توسعه داده شده توسط سعینسب
+' =============================================
+
+Option Compare Database
+Option Explicit
+
+Public Const FONT_VAZIR As String = "Vazir FD"
+
+Public Sub راهاندازی_سیستم()
+    MsgBox "سیستم مدیریت نمرات آماده است!", vbInformation
+    CreateMainMenu
+End Sub
+
+Public Sub CreateMainMenu()
+    Dim frm As Form
+    Set frm = CreateForm()
+    
+    frm.Caption = "سیستم مدیریت نمرات دبیرستان"
+    frm.Width = 800
+    frm.Height = 600
+    
+    ' ایجاد دکمه‌های منو
+    CreateButton frm, "مدیریت دانش‌آموزان", 100, 100
+    CreateButton frm, "ورود نمرات", 100, 150
+    CreateButton frm, "گزارشات", 100, 200
+    
+    DoCmd.Save "frmMainMenu"
+    DoCmd.Close acForm, "frmMainMenu", acSaveYes
+End Sub
+
+Private Sub CreateButton(ParentForm As Form, Caption As String, Left As Integer, Top As Integer)
+    Dim btn As CommandButton
+    Set btn = ParentForm.CreateControl("CommandButton", acCommandButton, , , , Left, Top, 200, 35)
+    btn.Caption = Caption
+    btn.FontName = FONT_VAZIR
+End Sub
