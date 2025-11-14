@@ -1,0 +1,115 @@
+' ========================
+' سیستم مدیریت نمرات دبیرستان
+' توسعه‌دهنده: سعینسب
+' ========================
+
+Option Compare Database
+Option Explicit
+
+Public Const PERSIAN_FONT As String = "Vazir FD"
+
+Public Sub InitializeSystem()
+    Call CreateMainTables
+    Call CreateMainForm
+    Call AddSampleData
+    MsgBox "سیستم آماده است! لطفا فرم اصلی را باز کنید.", vbInformation
+End Sub
+
+Public Sub CreateMainTables()
+    On Error Resume Next
+    CurrentDb.Execute "DROP TABLE Students"
+    CurrentDb.Execute "DROP TABLE Subjects"
+    On Error GoTo 0
+    
+    ' ایجاد جدول دانش‌آموزان
+    Dim sql As String
+    sql = "CREATE TABLE Students (" & _
+          "StudentID AUTOINCREMENT PRIMARY KEY, " & _
+          "FirstName TEXT(50), " & _
+          "LastName TEXT(50), " & _
+          "Grade INTEGER, " & _
+          "Class TEXT(10), " & _
+          "EnrollmentDate DATE, " & _
+          "IsActive YESNO)"
+    CurrentDb.Execute sql
+    
+    ' ایجاد جدول دروس
+    sql = "CREATE TABLE Subjects (" & _
+          "SubjectID AUTOINCREMENT PRIMARY KEY, " & _
+          "SubjectName TEXT(100), " & _
+          "TeacherName TEXT(100), " & _
+          "UnitCount INTEGER, " & _
+          "IsActive YESNO)"
+    CurrentDb.Execute sql
+    
+    MsgBox "جداول ایجاد شدند", vbInformation
+End Sub
+
+Public Sub CreateMainForm()
+    Dim frm As Form
+    Set frm = CreateForm()
+    
+    With frm
+        .Caption = "سیستم مدیریت نمرات - نسخه 1.0"
+        .Width = 900
+        .Height = 600
+        .AutoCenter = True
+    End With
+    
+    ' عنوان اصلی
+    Dim lbl As Label
+    Set lbl = frm.CreateControl("Label", acLabel, , , , 100, 50, 700, 60)
+    With lbl
+        .Caption = "سیستم مدیریت نمرات دبیرستان"
+        .FontSize = 16
+        .FontBold = True
+        .TextAlign = 2
+    End With
+    
+    ' دکمه‌های منو
+    CreateMenuButton frm, "👥 مدیریت دانش‌آموزان", 300, 150
+    CreateMenuButton frm, "📝 ورود نمرات", 300, 220
+    CreateMenuButton frm, "📚 مدیریت دروس", 300, 290
+    CreateMenuButton frm, "📊 گزارشات", 300, 360
+    CreateMenuButton frm, "🚪 خروج", 300, 430
+    
+    DoCmd.Save "frmMainMenu"
+    DoCmd.Close acForm, "frmMainMenu", acSaveYes
+    MsgBox "فرم اصلی ایجاد شد", vbInformation
+End Sub
+
+Private Sub CreateMenuButton(frm As Form, Caption As String, Left As Integer, Top As Integer)
+    Dim btn As CommandButton
+    Set btn = frm.CreateControl("CommandButton", acCommandButton, , , , Left, Top, 300, 45)
+    With btn
+        .Caption = Caption
+        .FontSize = 11
+        .FontBold = True
+    End With
+End Sub
+
+Public Sub AddSampleData()
+    ' اضافه کردن دروس نمونه
+    CurrentDb.Execute "INSERT INTO Subjects (SubjectName, TeacherName, UnitCount, IsActive) " & _
+                     "VALUES ('ریاضی', 'آقای محمدی', 3, True)"
+    
+    CurrentDb.Execute "INSERT INTO Subjects (SubjectName, TeacherName, UnitCount, IsActive) " & _
+                     "VALUES ('فیزیک', 'خانم احمدی', 2, True)"
+    
+    ' اضافه کردن دانش‌آموزان نمونه
+    CurrentDb.Execute "INSERT INTO Students (FirstName, LastName, Grade, Class, EnrollmentDate, IsActive) " & _
+                     "VALUES ('علی', 'محمدی', 10, '10A', Date(), True)"
+    
+    CurrentDb.Execute "INSERT INTO Students (FirstName, LastName, Grade, Class, EnrollmentDate, IsActive) " & _
+                     "VALUES ('فاطمه', 'رضایی', 10, '10A', Date(), True)"
+    
+    MsgBox "داده‌های نمونه اضافه شدند", vbInformation
+End Sub
+
+' تابع محاسبه میانگین
+Public Function CalculateAverage(StudentID As Long) As Double
+    Dim rs As Recordset
+    Set rs = CurrentDb.OpenRecordset("SELECT AVG(Score) FROM MonthlyScores WHERE StudentID=" & StudentID)
+    CalculateAverage = Nz(rs.Fields(0).Value, 0)
+    rs.Close
+End Function
