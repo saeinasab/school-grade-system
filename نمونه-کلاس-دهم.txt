@@ -1,0 +1,89 @@
+' 🏫 نمونه عملی: مدیریت کلاس دهم ریاضی
+' مدرسه: نمونه دولتی امیرکبیر
+' معلم: سعید ساعی نسب
+' سال تحصیلی: ۱۴۰۳-۱۴۰۴
+
+Public Sub CreateSampleClass()
+    Call InitializeSystem
+    Call AddTenthGradeMathClass
+    Call AddSampleScores
+    Call GenerateClassReport
+    MsgBox "نمونه کلاس دهم ریاضی با موفقیت ایجاد شد!", vbInformation
+End Sub
+
+Public Sub AddTenthGradeMathClass()
+    ' اضافه کردن دروس تخصصی دهم ریاضی
+    AddSubject "ریاضی‌ات", "آقای محمدی", 4
+    AddSubject "فیزیک", "خانم احمدی", 3
+    AddSubject "شیمی", "آقای رضایی", 3
+    AddSubject "زیست‌شناسی", "خانم کریمی", 3
+    AddSubject "ادبیات", "آقای حسینی", 2
+    AddSubject "دینی", "خانم موسوی", 2
+    AddSubject "زبان انگلیسی", "آقای فلاحی", 2
+    AddSubject "ورزش", "آقای قربانی", 1
+End Sub
+
+Public Sub AddSampleStudents()
+    ' دانش‌آموزان کلاس دهم ریاضی
+    AddStudent "محمد", "رضایی", 10, "دهم ریاضی", "09123456789"
+    AddStudent "فاطمه", "محمدی", 10, "دهم ریاضی", "09123456790"
+    AddStudent "علی", "کریمی", 10, "دهم ریاضی", "09123456791"
+    AddStudent "زهرا", "احمدی", 10, "دهم ریاضی", "09123456792"
+    AddStudent "حسین", "جعفری", 10, "دهم ریاضی", "09123456793"
+    AddStudent "نرگس", "قاسمی", 10, "دهم ریاضی", "09123456794"
+End Sub
+
+Public Sub AddSampleScores()
+    ' نمرات ماه مهر برای تمام دانش‌آموزان
+    AddMonthlyScores 7, 1403  ' ماه مهر
+End Sub
+
+' 📊 ایجاد گزارش کلاسی
+Public Sub GenerateClassReport()
+    Dim Report As String
+    Report = "گزارش کلاس دهم ریاضی - ماه مهر ۱۴۰۳" & vbCrLf & vbCrLf
+    
+    Report = Report & "📊 آمار کلاسی:" & vbCrLf
+    Report = Report & "تعداد دانش‌آموزان: " & GetStudentCount(10, "دهم ریاضی") & vbCrLf
+    Report = Report & "تعداد دروس: " & GetSubjectCount() & vbCrLf
+    Report = Report & "میانگین کل کلاس: " & GetClassAverage(10, "دهم ریاضی", 7, 1403) & vbCrLf & vbCrLf
+    
+    Report = Report & "🏆 دانش‌آموزان برتر:" & vbCrLf
+    Report = Report & GetTopStudents(10, "دهم ریاضی", 7, 1403, 3) & vbCrLf
+    
+    Report = Report & "📈 نمودار نمرات:" & vbCrLf
+    Report = Report & GetScoreDistribution(10, "دهم ریاضی", 7, 1403)
+    
+    ' نمایش گزارش
+    MsgBox Report, vbInformation, "گزارش کلاسی"
+End Sub
+
+' 🎯 توابع کمکی
+Public Function GetStudentCount(Grade As Integer, ClassName As String) As Integer
+    Dim rs As Recordset
+    Set rs = CurrentDb.OpenRecordset( _
+        "SELECT COUNT(*) FROM Students WHERE Grade=" & Grade & " AND Class='" & ClassName & "'")
+    GetStudentCount = rs.Fields(0).Value
+    rs.Close
+End Function
+
+Public Function GetClassAverage(Grade As Integer, ClassName As String, Month As Integer, Year As Integer) As String
+    ' محاسبه میانگین کلاس
+    Dim Total As Double, Count As Integer
+    Dim rs As Recordset
+    Set rs = CurrentDb.OpenRecordset( _
+        "SELECT StudentID FROM Students WHERE Grade=" & Grade & " AND Class='" & ClassName & "'")
+    
+    Do While Not rs.EOF
+        Total = Total + CalculateStudentAverage(rs!StudentID, Month, Year)
+        Count = Count + 1
+        rs.MoveNext
+    Loop
+    
+    If Count > 0 Then
+        GetClassAverage = Format(Total / Count, "0.00")
+    Else
+        GetClassAverage = "0.00"
+    End If
+    rs.Close
+End Function
