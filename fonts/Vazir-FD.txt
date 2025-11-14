@@ -1,3 +1,6 @@
-این فایل فونت Vazir FD خواهد بود
-می‌تونید از این لینک دانلود کنید:
+فونت Vazir FD برای سیستم فارسی
+
+لینک دانلود:
 https://github.com/rastikerdar/vazir-font/releases
+
+پس از دانلود، فایل Vazir-FD.ttf را نصب کنید.
